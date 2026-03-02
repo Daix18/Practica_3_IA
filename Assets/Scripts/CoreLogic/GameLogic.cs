@@ -233,37 +233,17 @@ public class GameLogic : MonoBehaviour
         {
             GameState.IsFinished = true;
 
-            geneticAI.EvaluateFitness();
-            geneticAI.CurrentIndividualIndex++;
-
-            if (geneticAI.CurrentIndividualIndex >= geneticAI.populationSize)
+            if (geneticAI.isTrainingMode)
             {
-                geneticAI.NextGeneration();
-                geneticAI.CurrentIndividualIndex = 0;
-                geneticAI.currentGeneration++;
-
-                Debug.Log("Generación completada: " + geneticAI.currentGeneration);
+                geneticAI.EvaluateFitness();
+                RestartMatch();
+            }
+            else
+            {
+                Debug.Log("Partida finalizada en modo juego.");
+                EndGameEvent.Raise();
             }
 
-            if (geneticAI.currentGeneration >= geneticAI.generationsPerSession)
-            {
-                geneticAI.SaveBestOfCurrentSession();
-                geneticAI.currentSession++;
-                geneticAI.currentGeneration = 0;
-
-                Debug.Log("Sesión completada: " + geneticAI.currentSession);
-
-                if (geneticAI.currentSession >= geneticAI.totalSessions)
-                {
-                    Debug.Log("ENTRENAMIENTO FINALIZADO");
-                    geneticAI.FinishTraining();
-                    geneticAI.BestFitnessDuringTraining();
-                    EndGameEvent.Raise();
-                    return true;
-                }
-            }
-
-            RestartMatch();
             return true;
         }
 

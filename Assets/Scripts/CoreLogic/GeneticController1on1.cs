@@ -607,6 +607,11 @@ public class GeneticController1on1 : AIController
 
     protected override void Think()
     {
+        if (CurrentIndividualIndex >= population.Count)
+        {
+            CurrentIndividualIndex = 0;
+        }
+
         int stateIndex = StateToTable();
         ControlledIndividual currentInd = population[CurrentIndividualIndex];
 
@@ -633,6 +638,33 @@ public class GeneticController1on1 : AIController
         matchfitness -= enemy.HP * 0.5f;
 
         population[CurrentIndividualIndex].fitness = matchfitness;
+
+        CurrentIndividualIndex++;
+
+        if (CurrentIndividualIndex >= populationSize)
+        {
+            CurrentIndividualIndex = 0;
+            currentGeneration++;
+
+            if (currentGeneration >= generationsPerSession)
+            {
+                SaveBestOfCurrentSession();
+                currentSession++;
+
+                if (currentSession >= totalSessions)
+                {
+                    FinishTraining();
+                    return;
+                }
+
+                currentGeneration = 0;
+
+                InitializePopulation();
+                return;
+            }
+
+            NextGeneration();
+        }
     }
 
     public ControlledIndividual TournamentSelection(int TSize)
