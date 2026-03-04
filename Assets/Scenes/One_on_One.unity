@@ -273,18 +273,21 @@ MonoBehaviour:
   Body: {fileID: 1369133472}
   GameState: {fileID: 11400000, guid: a841703fbd27b28448b694a9b62f749e, type: 2}
   AttackEvent: {fileID: 11400000, guid: f7754349b4b62e44a887465c45d4dc0c, type: 2}
-  matchfitness: 0
-  generationsPerSession: 5
-  totalSessions: 2
+  populationSize: 10
+  totalGenerations: 50
+  matchesPerIndividual: 5
   isTrainingMode: 1
-  currentGeneration: 0
-  currentSession: 0
-  CurrentIndividualIndex: 0
+  isPlayingMode: 0
+  demoIndex: 0
   MutationRate: 0.02
   minMutationRate: 0.001
   mutationDecayFactor: 0.95
-  populationSize: 10
   crossoverType: 1
+  currentGeneration: 0
+  CurrentIndividualIndex: 0
+  energyFailuresInMatch: 0
+  population: []
+  SavedPopulation: []
 --- !u!114 &147365010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1610,6 +1613,7 @@ MonoBehaviour:
   EndGameEvent: {fileID: 11400000, guid: 4819f9e09f8123e44bbd27a907df4b37, type: 2}
   AttackResult: {fileID: 11400000, guid: 2a849ac18f9caab48bb31274a2fc8f8b, type: 2}
   ChangeTurnEvent: {fileID: 11400000, guid: 718f00ec7e201a640b16a642f99c0091, type: 2}
+  maxPlayMatches: 10
 --- !u!114 &1463507696
 MonoBehaviour:
   m_ObjectHideFlags: 0

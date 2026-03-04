@@ -1,203 +1,6 @@
-﻿//using System.Collections;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Security.Cryptography.X509Certificates;
-//using UnityEngine;
-
-//public class GameLogic : MonoBehaviour
-//{
-//    public PlayerList PlayerList;
-//    public GameState GameState;
-
-
-//    public GameEvent EndGameEvent;
-//    public AttackResultEvent AttackResult;
-//    public PlayerEvent ChangeTurnEvent;
-
-//    private int _count = 0;
-//    public IEnumerator Start()
-//    {
-//        yield return new WaitForEndOfFrame();
-//        GameState.IsFinished = false;
-//        ChangeTurn();
-//    }
-
-
-//    public void ChangeTurn()
-//    {
-//        var next = _count;
-//        _count = (_count + 1) % 2;
-//        GameState.CurrentPlayer = PlayerList.Players[next];
-//        ChangeTurnEvent.Raise(PlayerList.Players[next]);
-
-
-//    }
-
-//    private bool EndGameTest()
-//    {
-//        if (PlayerList.Players.Any(p => p.HP <= 0))
-//        {
-//            GameState.IsFinished = true;
-//            EndGameEvent.Raise();
-//            return true;
-//        }
-//        return false;
-//    }
-
-//    public void OnAttackDone(Attack att)
-//    {
-
-//        Debug.Log($"Received Attack {att}");
-//        var hitRoll = Dice.PercentageChance();
-//        var result = ScriptableObject.CreateInstance<AttackResult>();
-//        result.IsHit = false;
-//        result.Attack = att;
-
-//        if (result.Attack != null)
-//        {
-//            result.Energy = att.AttackMade.Energy;
-//            if (att.Source.Energy >= att.AttackMade.Energy && hitRoll <= att.AttackMade.HitChance)
-//            {
-//                result.IsHit = true;
-
-//                result.Damage = Dice.RangeRoll(att.AttackMade.MinDam, att.AttackMade.MaxDam + 1);
-
-
-//                att.Target.HP -= result.Damage;
-
-//            }
-
-//            if (att.Source.Energy >= att.AttackMade.Energy)
-//            {
-//                att.Source.Energy -= result.Energy;
-//            }
-
-//            Debug.Log($"With Result \n    {result}");
-//            AttackResult.Raise(result);
-//        }
-
-//        if (!EndGameTest())
-//            ChangeTurn();
-//    }
-//}
-
-
-//using System.Collections;
-//using System.Collections.Generic;
-//using System.Data;
-//using System.Linq;
-//using System.Security.Cryptography.X509Certificates;
-//using UnityEngine;
-
-//public class GameLogic : MonoBehaviour
-//{
-//    public PlayerList PlayerList; //lista de jugadores 
-//    public GameState GameState; //estado del juego
-
-//    //ScriptableObject Events. Sirven para avisar a otros scripts que algo pasó:
-//    public GameEvent EndGameEvent;//
-//    public AttackResultEvent AttackResult;
-//    public PlayerEvent ChangeTurnEvent;
-
-//    private int _count = 0;
-//    public IEnumerator Start() //corrutina
-//    {
-//        yield return new WaitForEndOfFrame(); //espera 1 frame antes de empezar
-//        GameState.IsFinished = false;//inicializa el juego
-//        ChangeTurn(); //cambia el turno
-//    }
-
-
-//    public void ChangeTurn() //cambia el turno entre 2 jugadores
-//    {
-//        // NO cambiar turno si el juego ya terminó
-//        if (EndGameTest()) return;//AÑADIDO
-
-//        var next = _count;
-//        _count = (_count + 1) % 2;
-//        GameState.CurrentPlayer = PlayerList.Players[next]; //guarda quien juega ahora
-//        ChangeTurnEvent.Raise(PlayerList.Players[next]); //pra q se actualice la UI
-
-
-//    }
-
-//    private bool EndGameTest() //comprueba si algún jugador murió, si es así, termina el juego y avisa a la UI para mostrar el ganador
-//    {
-//        if (PlayerList.Players.Any(p => p.HP <= 0))
-//        {
-//            GameState.IsFinished = true;
-
-//            EvaluateGeneticController(); //AÑADIDO
-//            Debug.Log(" SI SE EJECUTA");
-//            EndGameEvent.Raise();
-//            return true;
-//        }
-//        return false;
-//    }
-
-//    public void OnAttackDone(Attack att)
-//    {
-
-//        Debug.Log($"Received Attack {att}");
-//        var hitRoll = Dice.PercentageChance(); //genera un número entre 0 y 1 para comparar con la probabilidad de acierto del ataque
-//        var result = ScriptableObject.CreateInstance<AttackResult>(); //crea el resultado del ataque (si fue hit cuanto daño cuanta energia se gasto)
-//        result.IsHit = false;
-//        result.Attack = att;
-
-//        if (result.Attack != null)
-//        {
-//            result.Energy = att.AttackMade.Energy;
-//            if (att.Source.Energy >= att.AttackMade.Energy && hitRoll <= att.AttackMade.HitChance) //se puede atacar?? suficiente energia y tirado < o = a % de acierto del ataque
-//            {
-//                result.IsHit = true;
-
-//                result.Damage = Dice.RangeRoll(att.AttackMade.MinDam, att.AttackMade.MaxDam + 1);//calcula daño 
-
-
-//                att.Target.HP -= result.Damage;//resta vida al objetivo
-
-//            }
-
-//            if (att.Source.Energy >= att.AttackMade.Energy)//aunq falle el ataque si tenia energia suficiente para intentarlo, se gasta la energia
-//            {
-//                att.Source.Energy -= result.Energy;
-//            }
-
-//            Debug.Log($"With Result \n    {result}");
-//            AttackResult.Raise(result); //animaciones, actualiza la UI, etc. dependiendo del resultado del ataque
-//        }
-
-//        if (!EndGameTest())//comprueba si el juego terminó, si no, cambia el turno
-//            ChangeTurn();
-//    }
-
-//    //AÑADIDO
-//    private void EvaluateGeneticController()
-//    {
-//        //var controllers = FindObjectsByType<GeneticController1on1>(FindObjectsSortMode.None);
-
-//        //foreach (var controller in controllers)
-//        //{
-//        //    controller.EvaluateFitness();
-//        //}
-//        // Buscamos en la escena el objeto que tiene el controlador genético
-//        // En tu configuración de Unity, esto está en AIControllerMin
-//        GeneticController1on1 geneticAI = FindFirstObjectByType<GeneticController1on1>();
-
-//        if (geneticAI != null)
-//        {
-//            geneticAI.EvaluateFitness(); // Llama a la función que ya definiste en tu controlador
-//            //geneticAI.EvaluateCurrentIndividualFitness();
-//            Debug.Log($"Fitness de la IA evaluado: {geneticAI.CurrentIndividual.fitness}");
-//        }
-//    }
-//}
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class GameLogic : MonoBehaviour
@@ -210,88 +13,140 @@ public class GameLogic : MonoBehaviour
     public AttackResultEvent AttackResult;
     public PlayerEvent ChangeTurnEvent;
 
+    [Header("Ajustes Modo Juego")]
+    public int maxPlayMatches = 10;
+    private int currentPlayMatch = 0;
     private int _count = 0;
+
+    private void Awake()
+    {
+        // Carga la población entrenada si no estamos en modo entrenamiento
+        if (!geneticAI.isTrainingMode) geneticAI.LoadPopulation();
+    }
 
     public IEnumerator Start()
     {
-        yield return new WaitForEndOfFrame();
+        // En entrenamiento usamos una espera mínima para máxima velocidad
+        yield return geneticAI.isTrainingMode ? new WaitForEndOfFrame() : new WaitForSeconds(1f);
         GameState.IsFinished = false;
         ChangeTurn();
     }
 
     public void ChangeTurn()
     {
-        var next = _count;
+        // Alterna entre los dos jugadores disponibles
+        int next = _count;
         _count = (_count + 1) % 2;
         GameState.CurrentPlayer = PlayerList.Players[next];
         ChangeTurnEvent.Raise(PlayerList.Players[next]);
     }
 
+    public void OnAttackDone(Attack att)
+    {
+        if (att == null) return;
+        var hitRoll = Dice.PercentageChance();
+        int energyCost = att.AttackMade.Energy;
+
+        // Verifica si el atacante tiene energía para ejecutar el movimiento seleccionado
+        if (att.Source.Energy >= energyCost)
+        {
+            bool isHit = hitRoll <= att.AttackMade.HitChance;
+            int damage = 0;
+
+            if (isHit)
+            {
+                damage = Dice.RangeRoll(att.AttackMade.MinDam, att.AttackMade.MaxDam + 1);
+                att.Target.HP -= damage;
+            }
+            att.Source.Energy -= energyCost;
+
+            // No procesamos efectos visuales durante el entrenamiento para ahorrar recursos
+            if (!geneticAI.isTrainingMode)
+                RaiseAttackVisuals(att, isHit, damage, energyCost);
+        }
+
+        if (!EndGameTest()) ChangeTurn();
+    }
+
+    private void RaiseAttackVisuals(Attack att, bool hit, int dam, int energy)
+    {
+        AttackResult result = ScriptableObject.CreateInstance<AttackResult>();
+        result.Attack = att;
+        result.IsHit = hit;
+        result.Damage = dam;
+        result.Energy = energy;
+        AttackResult.Raise(result);
+    }
+
     private bool EndGameTest()
     {
+        // Verifica si algún jugador ha perdido toda su vida
         if (PlayerList.Players.Any(p => p.HP <= 0))
         {
             GameState.IsFinished = true;
 
+            // Control de sesión en modo de juego real (límite de 10 partidas)
+            if (geneticAI.isPlayingMode)
+            {
+                currentPlayMatch++;
+                Debug.Log($"Partida de juego {currentPlayMatch} de {maxPlayMatches}");
+
+                if (currentPlayMatch >= maxPlayMatches)
+                {
+                    Debug.Log("Límite de partidas alcanzado en Modo Juego.");
+                    EndGameEvent.Raise();
+                    return true;
+                }
+
+                RestartMatch();
+                return true;
+            }
+
+            // Control del ciclo evolutivo durante el entrenamiento
             if (geneticAI.isTrainingMode)
             {
                 geneticAI.EvaluateFitness();
-                RestartMatch();
-            }
-            else
-            {
-                Debug.Log("Partida finalizada en modo juego.");
-                EndGameEvent.Raise();
+
+                if (geneticAI.CurrentIndividualIndex >= geneticAI.populationSize)
+                {
+                    geneticAI.currentGeneration++;
+
+                    if (geneticAI.currentGeneration >= geneticAI.totalGenerations)
+                    {
+                        geneticAI.FinishTraining();
+                        EndGameEvent.Raise();
+                        return true;
+                    }
+
+                    geneticAI.NextGeneration();
+                    geneticAI.CurrentIndividualIndex = 0;
+                }
             }
 
+            RestartMatch();
             return true;
         }
-
         return false;
-    }
-
-    public void OnAttackDone(Attack att)
-    {
-        Debug.Log($"Received Attack {att}");
-        var hitRoll = Dice.PercentageChance();
-        var result = ScriptableObject.CreateInstance<AttackResult>();
-        result.IsHit = false;
-        result.Attack = att;
-
-        if (result.Attack != null)
-        {
-            result.Energy = att.AttackMade.Energy;
-
-            if (att.Source.Energy >= att.AttackMade.Energy && hitRoll <= att.AttackMade.HitChance)
-            {
-                result.IsHit = true;
-                result.Damage = Dice.RangeRoll(att.AttackMade.MinDam, att.AttackMade.MaxDam + 1);
-                att.Target.HP -= result.Damage;
-            }
-
-            if (att.Source.Energy >= att.AttackMade.Energy)
-            {
-                att.Source.Energy -= result.Energy;
-            }
-
-            Debug.Log($"With Result \n    {result}");
-            AttackResult.Raise(result);
-        }
-
-        if (!EndGameTest())
-            ChangeTurn();
     }
 
     private void RestartMatch()
     {
+        // Restablece los valores iniciales de vida y energía para el nuevo combate
         foreach (var player in PlayerList.Players)
         {
             player.HP = player.InitialHP;
             player.Energy = player.InitialEnergy;
         }
-
         _count = 0;
         GameState.IsFinished = false;
+
+        // Limpieza de memoria para optimizar el rendimiento en sesiones largas de entrenamiento
+        if (geneticAI.isTrainingMode)
+        {
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
+            Resources.UnloadUnusedAssets();
+        }
 
         StartCoroutine(Start());
     }
